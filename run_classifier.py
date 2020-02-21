@@ -1035,16 +1035,16 @@ def main(_):
                 label = predict_examples[i].label
 
                 label_map = {}
-                for (i, label) in enumerate(label_list):
-                    label_map[label] = i
+                for (i, l) in enumerate(label_list):
+                    label_map[l] = i
                 label = label_map[label]
                 predict_labels.append(predict)
                 test_labels.append(label)
-                output_line = "预测label：" + str(predict) + "实际label：" + str(label)
+                output_line = "预测label：" + str(predict) + "\t" + "实际label：" + str(label) + '\n'
                 writer.write(output_line)
                 num_written_lines += 1
-            accuracy = sum(int(np.array(test_labels) != np.array(predict_labels)))
-            writer.write(accuracy)
+            accuracy = sum(np.array(test_labels) == np.array(predict_labels))
+            writer.write(str(accuracy / len(predict_labels)))
         assert num_written_lines == num_actual_predict_examples
 
 
