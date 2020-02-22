@@ -22,12 +22,11 @@ import collections
 import csv
 import os
 
-import configs
 import modeling
 import optimization
 import tokenization
 import tensorflow as tf
-import  numpy as np
+import numpy as np
 
 flags = tf.flags
 
@@ -70,9 +69,9 @@ flags.DEFINE_integer(
     "Sequences longer than this will be truncated, and sequences shorter "
     "than this will be padded.")
 
-flags.DEFINE_bool("do_train", False, "Whether to run training.")
+flags.DEFINE_bool("do_train", True, "Whether to run training.")
 
-flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
+flags.DEFINE_bool("do_eval", True, "Whether to run eval on the dev set.")
 
 flags.DEFINE_bool(
     "do_predict", True,
@@ -80,13 +79,13 @@ flags.DEFINE_bool(
 
 flags.DEFINE_integer("train_batch_size", 16, "Total batch size for training.")
 
-flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
+flags.DEFINE_integer("eval_batch_size", 16, "Total batch size for eval.")
 
-flags.DEFINE_integer("predict_batch_size", 8, "Total batch size for predict.")
+flags.DEFINE_integer("predict_batch_size", 16, "Total batch size for predict.")
 
 flags.DEFINE_float("learning_rate", 5e-5, "The initial learning rate for Adam.")
 
-flags.DEFINE_float("num_train_epochs", 3.0,
+flags.DEFINE_float("num_train_epochs", 10,
                    "Total number of training epochs to perform.")
 
 flags.DEFINE_float(
@@ -424,7 +423,7 @@ class SimProcessor(DataProcessor):
     def _read_tsv(cls, input_file, quotechar=None):
         """Reads a tab separated value file."""
         with tf.gfile.Open(input_file, "r") as f:
-            reader = csv.reader(f, delimiter=",", quotechar=quotechar)
+            reader = csv.reader(f, delimiter="\t", quotechar=quotechar)
             lines = []
             for line in reader:
                 lines.append(line)
@@ -1032,15 +1031,12 @@ def main(_):
                 #     str(class_probability)
                 #     for class_probability in probabilities) + "\n"
                 predict = int(probabilities[0] < probabilities[1])
-                label = predict_examples[i].label
+                label = int(predict_examples[i].label)
 
-                label_map = {}
-                for (i, l) in enumerate(label_list):
-                    label_map[l] = i
-                label = label_map[label]
                 predict_labels.append(predict)
                 test_labels.append(label)
-                output_line = "预测label：" + str(predict) + "\t" + "实际label：" + str(label) + '\n'
+                output_line = "预测概率：" + "\t" + str(probabilities[0]) + "\t" + str(
+                    probabilities[1]) + "\t" + "预测label：" + str(predict) + "\t" + "实际label：" + str(label) + '\n'
                 writer.write(output_line)
                 num_written_lines += 1
             accuracy = sum(np.array(test_labels) == np.array(predict_labels))
