@@ -1023,6 +1023,7 @@ def main(_):
             tf.logging.info("***** Predict results *****")
             predict_labels = []
             test_labels = []
+            writer.write("id,label\n")
             for (i, prediction) in enumerate(result):
                 probabilities = prediction["probabilities"]
                 if i >= num_actual_predict_examples:
@@ -1035,12 +1036,13 @@ def main(_):
 
                 predict_labels.append(predict)
                 test_labels.append(label)
-                output_line = "预测概率：" + "\t" + str(probabilities[0]) + "\t" + str(
-                    probabilities[1]) + "\t" + "预测label：" + str(predict) + "\t" + "实际label：" + str(label) + '\n'
+                # output_line = "预测概率：" + "\t" + str(probabilities[0]) + "\t" + str(
+                #     probabilities[1]) + "\t" + "预测label：" + str(predict) + "\t" + "实际label：" + str(label) + '\n'
+                output_line = str(i) + ',' + str(predict) + '\n'
                 writer.write(output_line)
                 num_written_lines += 1
-            accuracy = sum(np.array(test_labels) == np.array(predict_labels))
-            writer.write(str(accuracy / len(predict_labels)))
+            # accuracy = sum(np.array(test_labels) == np.array(predict_labels))
+            # writer.write(str(accuracy / len(predict_labels)))
         assert num_written_lines == num_actual_predict_examples
 
 
